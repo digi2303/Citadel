@@ -2,21 +2,22 @@ package com.github.alexthe666.citadel.mixin.client;
 
 import com.github.alexthe666.citadel.CitadelConstants;
 import com.github.alexthe666.citadel.client.event.EventRenderSplashText;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.SplashRenderer;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.TriState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.SplashRenderer;
 
 @Mixin(SplashRenderer.class)
 public class SplashRendererMixin {
@@ -26,7 +27,7 @@ public class SplashRendererMixin {
     @Final
     private String splash;
 
-    private int splashTextColor = -1;
+    @Unique private int citadel$splashTextColor = -1;
 
     @Inject(
             method = "render(Lnet/minecraft/client/gui/GuiGraphics;ILnet/minecraft/client/gui/Font;I)V",
@@ -43,7 +44,7 @@ public class SplashRendererMixin {
 
         if (event.getResult() == TriState.TRUE) {
             splash = event.getSplashText();
-            splashTextColor = event.getSplashTextColor();
+            citadel$splashTextColor = event.getSplashTextColor();
         }
     }
 
@@ -62,10 +63,10 @@ public class SplashRendererMixin {
         guiGraphics.pose().popPose();
     }
 
-    @ModifyConstant(
+    @ModifyExpressionValue(
             method = "render(Lnet/minecraft/client/gui/GuiGraphics;ILnet/minecraft/client/gui/Font;I)V",
-            constant = @Constant(intValue = 16776960))
+            at = @At(value = "CONSTANT", args = "intValue=16776960"))
     private int citadel_splashTextColor(int value) {
-        return splashTextColor == -1 ? value : splashTextColor;
+        return citadel$splashTextColor == -1 ? value : citadel$splashTextColor;
     }
 }

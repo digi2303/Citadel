@@ -2,6 +2,8 @@ package com.github.alexthe666.citadel.server.generation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import com.google.common.collect.ImmutableList;
 
@@ -12,6 +14,8 @@ public class SurfaceRulesManager {
     private static final List<SurfaceRules.RuleSource> NETHER_REGISTRY = new ArrayList();
     private static final List<SurfaceRules.RuleSource> END_REGISTRY = new ArrayList();
     private static final List<SurfaceRules.RuleSource> CAVE_REGISTRY = new ArrayList();
+
+    private static final Map<SurfaceRules.RuleSource, SurfaceRules.RuleSource> MERGED_RULES = new WeakHashMap<>();
 
     public SurfaceRulesManager() {
     }
@@ -56,6 +60,6 @@ public class SurfaceRulesManager {
     }
 
     public static SurfaceRules.RuleSource mergeOverworldRules(SurfaceRules.RuleSource rulesIn) {
-        return mergeRules(rulesIn, OVERWORLD_REGISTRY);
+        return MERGED_RULES.computeIfAbsent(rulesIn, r -> mergeRules(r, OVERWORLD_REGISTRY));
     }
 }

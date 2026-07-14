@@ -161,12 +161,17 @@ public abstract class GuiBasicBook extends Screen {
         quaternion.mul(Axis.ZP.rotationDegrees((float) zRot));
         guiGraphics.pose().mulPose(quaternion);
 
-        Lighting.setupForEntityInInventory();
+        Lighting.setupForEntityInInventory(quaternion);
         EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         quaternion1.conjugate();
         entityrenderdispatcher.overrideCameraOrientation(quaternion1);
         entityrenderdispatcher.setRenderShadow(false);
-        RenderSystem.runAsFancy(() -> entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, guiGraphics.pose(), bufferSource, 15728880));
+        RenderSystem.runAsFancy(() -> {
+            entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, guiGraphics.pose(), bufferSource, 15728880);
+            if (bufferSource instanceof MultiBufferSource.BufferSource batched) {
+                batched.endBatch();
+            }
+        });
         entityrenderdispatcher.setRenderShadow(true);
         entity.setYRot(0);
         entity.setXRot(0);

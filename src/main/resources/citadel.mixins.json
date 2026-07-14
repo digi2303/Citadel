@@ -10,7 +10,7 @@
     "LevelMixin",
     "LivingEntityMixin",
     "MinecraftServerMixin",
-    "NoiseGeneratorSettingsMixin",
+    "NoiseBasedChunkGeneratorMixin",
     "ServerLevelMixin",
     "SmithingMenuMixin"
   ],

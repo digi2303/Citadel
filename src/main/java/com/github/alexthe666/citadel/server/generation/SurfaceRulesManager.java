@@ -1,6 +1,7 @@
 package com.github.alexthe666.citadel.server.generation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -15,7 +16,7 @@ public class SurfaceRulesManager {
     private static final List<SurfaceRules.RuleSource> END_REGISTRY = new ArrayList();
     private static final List<SurfaceRules.RuleSource> CAVE_REGISTRY = new ArrayList();
 
-    private static final Map<SurfaceRules.RuleSource, SurfaceRules.RuleSource> MERGED_RULES = new WeakHashMap<>();
+    private static final Map<SurfaceRules.RuleSource, SurfaceRules.RuleSource> MERGED_RULES = Collections.synchronizedMap(new WeakHashMap<>());
 
     public SurfaceRulesManager() {
     }
@@ -54,8 +55,8 @@ public class SurfaceRulesManager {
 
     public static SurfaceRules.RuleSource mergeRules(SurfaceRules.RuleSource prev, List<SurfaceRules.RuleSource> toMerge) {
         ImmutableList.Builder<SurfaceRules.RuleSource> builder = ImmutableList.builder();
-        builder.add(prev);
         builder.addAll(toMerge);
+        builder.add(prev);
         return SurfaceRules.sequence(builder.build().toArray(SurfaceRules.RuleSource[]::new));
     }
 

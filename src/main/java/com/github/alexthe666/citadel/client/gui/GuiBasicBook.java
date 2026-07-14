@@ -46,7 +46,6 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import org.apache.commons.io.IOUtils;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -119,10 +118,12 @@ public abstract class GuiBasicBook extends Screen {
         entityrenderermanager.overrideCameraOrientation(quaternion1);
         entityrenderermanager.setRenderShadow(false);
         MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
+        Lighting.setupForEntityInInventory();
         RenderSystem.runAsFancy(() -> {
             VertexConsumer ivertexbuilder = irendertypebuffer$impl.getBuffer(RenderType.entityCutoutNoCull(tex));
             model.resetToDefaultPose();
             model.renderToBuffer(matrixstack, ivertexbuilder, 15728880, OverlayTexture.NO_OVERLAY, -1);
+            irendertypebuffer$impl.endBatch();
         });
         Lighting.setupFor3DItems();
     }
@@ -160,24 +161,25 @@ public abstract class GuiBasicBook extends Screen {
         quaternion.mul(Axis.ZP.rotationDegrees((float) zRot));
         guiGraphics.pose().mulPose(quaternion);
 
-        Vector3f light0 = new Vector3f(1, -1.0F, -1.0F).normalize();
-        Vector3f light1 = new Vector3f(-1, 1.0F, 1.0F).normalize();
-        RenderSystem.setShaderLights(light0, light1);
+        Lighting.setupForEntityInInventory(quaternion);
         EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         quaternion1.conjugate();
         entityrenderdispatcher.overrideCameraOrientation(quaternion1);
         entityrenderdispatcher.setRenderShadow(false);
-        RenderSystem.runAsFancy(() -> entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, guiGraphics.pose(), bufferSource, 15728880));
+        RenderSystem.runAsFancy(() -> {
+            entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, guiGraphics.pose(), bufferSource, 15728880);
+            if (bufferSource instanceof MultiBufferSource.BufferSource batched) {
+                batched.endBatch();
+            }
+        });
         entityrenderdispatcher.setRenderShadow(true);
         entity.setYRot(0);
         entity.setXRot(0);
-        entity.xRotO = 0;
-        entity.yRotO = 0;
-        if (entity instanceof LivingEntity livingEntity) {
-            livingEntity.yBodyRot = 0;
-            livingEntity.yBodyRotO = 0;
-            livingEntity.yHeadRot = 0;
-            livingEntity.yHeadRotO = 0;
+        if (entity instanceof LivingEntity) {
+            ((LivingEntity) entity).yBodyRot = 0;
+            ((LivingEntity) entity).yBodyRotO = 0;
+            ((LivingEntity) entity).yHeadRotO = 0;
+            ((LivingEntity) entity).yHeadRot = 0;
         }
 
         guiGraphics.flush();
@@ -268,6 +270,15 @@ public abstract class GuiBasicBook extends Screen {
     @Override
     protected void renderBlurredBackground(float partialTick) {
         // Do nothing - this prevents the blur effect from being applied
+    }
+
+    /**
+     * Override to disable the menu background that was added in Minecraft 1.21
+     * Without this override, the book appears darker due to the overlay
+     */
+    @Override
+    protected void renderMenuBackground(GuiGraphics guiGraphics) {
+        // Do nothing - this prevents the dark menu background from being rendered
     }
 
     @Override

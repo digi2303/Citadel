@@ -277,7 +277,7 @@ public class AdvancedModelBox extends BasicModelPart {
 
             for (TabulaModelRenderUtils.TexturedQuad lvt_16_1_ : var13) {
                 Vector3f lvt_17_1_ = new Vector3f(lvt_16_1_.normal);
-                lvt_17_1_.mul(lvt_10_1_);
+                lvt_17_1_.mul(lvt_10_1_).normalize();
                 float lvt_18_1_ = lvt_17_1_.x();
                 float lvt_19_1_ = lvt_17_1_.y();
                 float lvt_20_1_ = lvt_17_1_.z();

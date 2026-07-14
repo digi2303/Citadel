@@ -158,7 +158,7 @@ public class BasicModelPart {
         for(BasicModelPart.ModelBox BasicModelPart$modelbox : this.cubeList) {
             for(BasicModelPart.TexturedQuad BasicModelPart$texturedquad : BasicModelPart$modelbox.quads) {
                 Vector3f vector3f = new Vector3f(BasicModelPart$texturedquad.normal);
-                vector3f.mul(matrix3f);
+                vector3f.mul(matrix3f).normalize();
                 float f = vector3f.x();
                 float f1 = vector3f.y();
                 float f2 = vector3f.z();

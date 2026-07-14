@@ -2,23 +2,23 @@ package com.github.alexthe666.citadel.mixin.client;
 
 import com.github.alexthe666.citadel.CitadelConstants;
 import com.github.alexthe666.citadel.client.tick.ClientTickRateTracker;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SoundEngine.class)
 public class SoundEngineMixin {
-    @Inject(
+    @ModifyReturnValue(
             method = "calculatePitch",
             remap = CitadelConstants.REMAPREFS,
-            cancellable = true,
             at = @At(value = "RETURN")
     )
-    protected void citadel_setupRotations(SoundInstance soundInstance, CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(cir.getReturnValue() * ClientTickRateTracker.getForClient(Minecraft.getInstance()).modifySoundPitch(soundInstance));
+    protected float citadel_setupRotations(float original, @Local(argsOnly = true) SoundInstance soundInstance) {
+        return original * ClientTickRateTracker.getForClient(Minecraft.getInstance()).modifySoundPitch(soundInstance);
     }
 }

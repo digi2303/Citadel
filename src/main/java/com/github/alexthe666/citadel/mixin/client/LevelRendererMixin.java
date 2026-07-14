@@ -4,15 +4,8 @@ import com.github.alexthe666.citadel.Citadel;
 import com.github.alexthe666.citadel.CitadelConstants;
 import com.github.alexthe666.citadel.client.event.EventGetOutlineColor;
 import com.github.alexthe666.citadel.client.shader.PostEffectRegistry;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.TriState;
 import org.joml.Matrix4f;
@@ -23,6 +16,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
@@ -72,15 +75,16 @@ public class LevelRendererMixin {
         PostEffectRegistry.blitEffects();
     }
 
-    @Redirect(
+    @WrapOperation(
             method = "renderLevel",
             remap = CitadelConstants.REMAPREFS,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getTeamColor()I")
     )
-    private int citadel_getTeamColor(Entity entity) {
-        EventGetOutlineColor event = new EventGetOutlineColor(entity, entity.getTeamColor());
+    private int citadel_getTeamColor(Entity entity, Operation<Integer> original) {
+        int originalValue = original.call(entity);
+        EventGetOutlineColor event = new EventGetOutlineColor(entity, originalValue);
         NeoForge.EVENT_BUS.post(event);
-        int color = entity.getTeamColor();
+        int color = originalValue;
         if (event.getResult() == TriState.TRUE) {
             color = event.getColor();
         }

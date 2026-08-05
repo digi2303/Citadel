@@ -273,6 +273,10 @@ public abstract class GuiBasicBook extends Screen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics guiGraphics, int x, int y, float partialTicks) {
+    }
+
+    @Override
     public void render(GuiGraphics guiGraphics, int x, int y, float partialTicks) {
         this.mouseX = x;
         this.mouseY = y;
@@ -280,7 +284,8 @@ public abstract class GuiBasicBook extends Screen {
         int bindingR = bindingColor >> 16 & 255;
         int bindingG = bindingColor >> 8 & 255;
         int bindingB = bindingColor & 255;
-        this.renderBackground(guiGraphics, x, y, partialTicks);
+        this.renderTransparentBackground(guiGraphics);
+        guiGraphics.flush();
         int k = (this.width - this.xSize) / 2;
         int l = (this.height - this.ySize + 128) / 2;
         BookBlit.blitWithColor(guiGraphics, getBookBindingTexture(), k, l, 0, 0, xSize, ySize, xSize, ySize, bindingR, bindingG, bindingB, 255);

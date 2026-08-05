@@ -272,15 +272,6 @@ public abstract class GuiBasicBook extends Screen {
         // Do nothing - this prevents the blur effect from being applied
     }
 
-    /**
-     * Override to disable the menu background that was added in Minecraft 1.21
-     * Without this override, the book appears darker due to the overlay
-     */
-    @Override
-    protected void renderMenuBackground(GuiGraphics guiGraphics) {
-        // Do nothing - this prevents the dark menu background from being rendered
-    }
-
     @Override
     public void render(GuiGraphics guiGraphics, int x, int y, float partialTicks) {
         this.mouseX = x;
